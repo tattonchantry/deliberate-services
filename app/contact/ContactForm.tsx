@@ -20,6 +20,8 @@ export default function ContactForm() {
   const [form, setForm] = useState<FormState>(initialState);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Partial<FormState>>({});
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   function validate(): boolean {
     const newErrors: Partial<FormState> = {};
@@ -44,10 +46,28 @@ export default function ContactForm() {
     }
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!validate()) return;
-    setSubmitted(true);
+    setLoading(true);
+    setServerError(null);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setServerError(data.error ?? 'Something went wrong. Please try again.');
+      } else {
+        setSubmitted(true);
+      }
+    } catch {
+      setServerError('Network error. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (submitted) {
@@ -85,6 +105,7 @@ export default function ContactForm() {
           onClick={() => {
             setForm(initialState);
             setSubmitted(false);
+            setServerError(null);
           }}
           className="mt-6 px-6 py-2 text-sm font-semibold rounded transition-opacity hover:opacity-80"
           style={{ backgroundColor: '#1e3a5f', color: '#ffffff' }}
@@ -202,12 +223,17 @@ export default function ContactForm() {
           )}
         </div>
 
+        {serverError && (
+          <p className="text-sm text-red-600">{serverError}</p>
+        )}
+
         <button
           type="submit"
-          className="w-full py-3 px-6 text-sm font-semibold rounded transition-opacity hover:opacity-90"
+          disabled={loading}
+          className="w-full py-3 px-6 text-sm font-semibold rounded transition-opacity hover:opacity-90 disabled:opacity-60"
           style={{ backgroundColor: '#1e3a5f', color: '#ffffff' }}
         >
-          Send Message
+          {loading ? 'Sending…' : 'Send Message'}
         </button>
 
         <p className="text-xs leading-relaxed" style={{ color: '#4a5568' }}>
