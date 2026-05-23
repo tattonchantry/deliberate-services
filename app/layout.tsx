@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   title: "Deliberate Services LLC",
   description:
     "Deliberate Services LLC is a Service-Disabled Veteran-Owned Small Business (SDVOSB) based in Virginia Beach, Virginia, providing government consulting, technology solutions, and contract supply procurement.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
