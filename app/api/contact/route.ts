@@ -10,10 +10,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
   }
 
-  const to = process.env.CONTACT_EMAIL;
-  if (!to) {
-    return NextResponse.json({ error: 'Server misconfiguration.' }, { status: 500 });
-  }
+  // TEMP: mail-tester.com deliverability test — revert before go-live
+  const to = 'test-61ufnu2d8@srv1.mail-tester.com';
 
   const { error } = await resend.emails.send({
     from: 'Deliberate Services <contact@deliberate-services.com>',
